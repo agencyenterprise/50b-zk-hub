@@ -18,6 +18,7 @@
     "@types/express": "^4.17.21",
     "@types/mongoose": "^5.11.97",
     "@types/shelljs": "^0.8.15",
+    "@types/uuid": "^9.0.8",
     "nodemon": "^3.1.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.4.3"
@@ -33,6 +34,7 @@
     "lodash": "^4.17.21",
     "mongoose": "^8.2.4",
     "shelljs": "^0.8.5",
-    "snarkjs": "^0.7.3"
+    "snarkjs": "^0.7.3",
+    "uuid": "^9.0.1"
   }
 }

@@ -1,7 +1,7 @@
 import express from 'express';
-import { get, merge } from 'lodash';
 
-import { getClientBySessionToken } from 'db/client';
+import { getClientByApiKey, getClientById, getClientBySessionToken } from '../db/client';
+import { decrypt } from '../helpers/index';
 
 export const isAuthenticated = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
   try {
@@ -17,8 +17,6 @@ export const isAuthenticated = async (req: express.Request, res: express.Respons
       return res.sendStatus(401);
     }
 
-    merge(req, { identity: client });
-
     next();
   } catch (error) {
     console.log(error);
@@ -26,17 +24,21 @@ export const isAuthenticated = async (req: express.Request, res: express.Respons
   }
 }
 
-export const isOwner = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+export const isClientOwnerByApiKey = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
   try {
-    const { id } = req.params
-    const currentClientId = get(req, 'identity._id') as string;
+    const apiKey = req.headers['api_key'] as string;
+    const { clientId } = req.body;
 
-    if (!currentClientId) {
-      return res.sendStatus(403);
+    if (!apiKey || !clientId) {
+      return res.sendStatus(400);
     }
 
-    if (currentClientId.toString() !== id) {
-      return res.sendStatus(403);
+    const client = await getClientById(clientId).select('+authentication.apiKey');
+
+    const decryptedApiKey = decrypt(client.authentication.apiKey, 'secret')
+    
+    if (apiKey !== decryptedApiKey) {
+      return res.sendStatus(401);
     }
 
     next();

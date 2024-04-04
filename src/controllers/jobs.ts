@@ -1,3 +1,4 @@
+import { getClientByApiKey } from '../db/client';
 import { JobStatus, createJob, getJobById, updateJobById } from '../db/job';
 import { Worker, WorkerModel } from '../db/worker';
 import express from 'express';
@@ -8,24 +9,20 @@ const fs = require("fs");
 
 export const createJobController = async (req: express.Request, res: express.Response) => {
   try {
-    const { client, circomScript } = req.body;
+    const { circomScript, clientId } = req.body;
 
-    if (!client) {
+    if (!circomScript) {
       return res.sendStatus(400);
     }
-
-    // await base64ToFile(circomScript, 'temp/circomScript.circom')
-
-    shelljs.exec("circom circuit.circom --r1cs")
 
     const circuitInfo = await snarkjs.r1cs.info('circuit.r1cs')
 
     const worker = await selectWorker()
 
     const job = await createJob({
-      client,
+      client: clientId,
       worker,
-      numberOfConstraints: circuitInfo.nConstraints,
+      numberOfConstraints: 10,
       circomScript
     });
 
@@ -66,7 +63,7 @@ export const informInputsController = async (req: express.Request, res: express.
       status: updatedJobId.status,
     });
   } catch (error) {
-    console.error(error);
+    // console.error(error);
     res.sendStatus(500);
   }
 }

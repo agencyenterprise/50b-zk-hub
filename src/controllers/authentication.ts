@@ -1,6 +1,8 @@
-import { random, authentication } from '../helpers';
-import { createClient, getClientByEmail } from '../db/client';
 import express from 'express';
+import { v4 as uuidv4 } from 'uuid';
+import { random, authentication, encrypt } from '../helpers';
+import { createClient, getClientByEmail, getClientBySessionToken } from '../db/client';
+import crypto from 'crypto';
 
 export const login = async (req: express.Request, res: express.Response) => {
   try {
@@ -28,13 +30,13 @@ export const login = async (req: express.Request, res: express.Response) => {
     await client.save()
 
     res.cookie("SESSION_TOKEN", client.authentication.sessionToken, { domain: 'localhost', path: '/' })
-    
+
     return res.status(200).json(client)
   } catch (error) {
     console.log(error)
     return res.sendStatus(400)
   }
-} 
+}
 
 export const register = async (req: express.Request, res: express.Response) => {
   try {
@@ -68,6 +70,29 @@ export const register = async (req: express.Request, res: express.Response) => {
   }
 }
 
-export const createAuthToken = async (req: express.Request, res: express.Response) => {
+const SECRET_KEY = 'secret'
+
+export const generateApiToken = async (req: express.Request, res: express.Response) => {
+  const sessionToken = req.cookies['SESSION_TOKEN'];
+
+  if (!sessionToken) {
+    return res.sendStatus(403);
+  }
+
+  const client = await getClientBySessionToken(sessionToken);
+
+  if (!client) {
+    return res.sendStatus(401);
+  }
+
+  const apiKey: string = uuidv4()
+  const encryptedApiKey = encrypt(apiKey, SECRET_KEY);
   
+  client.authentication.apiKey = encryptedApiKey
+
+  client.save()
+
+  res.status(200).json({
+    apiKey
+  })
 }
