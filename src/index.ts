@@ -15,7 +15,8 @@ app.use(cors({
 
 app.use(compression());
 app.use(cookieParser());
-app.use(bodyParser.json());
+app.use(bodyParser.json({ limit: '50mb' }));
+
 
 const server = http.createServer(app);
 

@@ -14,11 +14,22 @@ function fileToBase64(filePath) {
   });
 }
 
+function createTxtFile(filename, content) {
+  fs.writeFile(filename, content, (err) => {
+    if (err) {
+      console.error('Error creating file:', err);
+      return;
+    }
+    console.log(`File '${filename}' created successfully.`);
+  });
+}
+
+
 // Usage example
-const filePath = 'circuit.circom'; // Replace with the path to your file
+const filePath = 'circuit.r1cs'; // Replace with the path to your file
 fileToBase64(filePath)
   .then(base64String => {
-    console.log('Base64 string:', base64String);
+    createTxtFile('r1cs.txt', base64String)
   })
   .catch(error => {
     console.error('Error:', error);

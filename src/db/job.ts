@@ -4,7 +4,7 @@ import { Client } from "./client";
 
 export enum JobStatus {
   CREATED = 'CREATED',
-  INPUTS_PROVIDED = 'INPUTS_PROVIDED',
+  WITNESS_PROVIDED = 'WITNESS_PROVIDED',
   PROCESSING = 'PROCESSING',
   COMPLETED = 'COMPLETED',
   FAILED = 'FAILED',
@@ -14,26 +14,26 @@ export interface Job extends Document {
   client: mongoose.Types.ObjectId | Client;
   status: JobStatus;
   worker?: mongoose.Types.ObjectId | Worker;
-  inputs?: String
+  witness?: String
   proof?: String
-  numberOfConstraints: Number
-  circomScript: String
+  numberOfConstraints?: Number
+  r1csScript?: String
 }
 
 const JobSchema = new Schema<Job>({
   client: { type: Schema.Types.ObjectId, ref: 'Client', required: true },
   status: { type: String, enum: Object.values(JobStatus), default: JobStatus.CREATED },
   worker: { type: Schema.Types.ObjectId, ref: 'Worker', required: false },
-  inputs: { type: String, required: false },
-  proof: { type: String, required: false },
-  numberOfConstraints: { type: Number, required: true },
-  circomScript: { type: String, required: true },
+  witness: { type: String },
+  proof: { type: String },
+  numberOfConstraints: { type: Number },
+  r1csScript: { type: String },
 })
 
 JobSchema.post('findOneAndUpdate', function (job: Job) {
   const updatedStatus = job.status;
-  if (updatedStatus === JobStatus.INPUTS_PROVIDED) {
-    informInputsProvided(job);
+  if (updatedStatus === JobStatus.WITNESS_PROVIDED) {
+    informWitnessProvided(job);
   } else if (updatedStatus === JobStatus.COMPLETED) {
     informJobCompleted(job);
   }
@@ -42,19 +42,19 @@ JobSchema.post('findOneAndUpdate', function (job: Job) {
 export const JobModel = mongoose.model<Job>('Job', JobSchema)
 
 export const getJobs = JobModel.find()
-export const createJob = (values: Record<string, any>) => new JobModel(values).save().then(job => job.toObject())
+export const createJob = (values: Record<string, any>) => new JobModel(values).save()
 export const getJobById = (id: Schema.Types.UUID) => JobModel.findById(id)
 export const updateJobById = (id: string, values: Record<string, any>): Promise<Job> => JobModel.findOneAndUpdate({ _id: id }, values, { new: true });
 
-const informInputsProvided = async (job: Job) => {
+const informWitnessProvided = async (job: Job) => {
   await job.populate("worker")
   const worker = job.worker as Worker
 
-  fetch(`${worker.httpEndpoint}/inputs`, {
+  fetch(`${worker.httpEndpoint}/witness`, {
     method: 'POST',
     body: JSON.stringify({
       id: job._id,
-      inputs: job.inputs,
+      witness: job.witness,
     }),
     headers: {
       'Content-Type': 'application/json',
