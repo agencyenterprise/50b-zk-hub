@@ -27,7 +27,6 @@ export const isAuthenticated = async (req: express.Request, res: express.Respons
 
 export const isClientOwnerByApiKey = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
   try {
-    console.log()
     const apiKey = req.headers['api_key'] as string;
     const { clientId } = req.body;
 
@@ -52,7 +51,6 @@ export const isClientOwnerByApiKey = async (req: express.Request, res: express.R
 
 export const isJobOwnerByApiKey = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
   try {
-    console.log
     const apiKey = req.headers['api_key'] as string;
     const { jobId } = req.body;
 

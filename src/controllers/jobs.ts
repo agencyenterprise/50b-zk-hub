@@ -6,7 +6,6 @@ import { deleteFile } from '../helpers/files';
 
 const snarkjs = require('snarkjs')
 
-
 export const createJobController = async (req: express.Request, res: express.Response) => {
   try {
     const { r1csScript, clientId } = req.body;
@@ -41,7 +40,6 @@ export const createJobController = async (req: express.Request, res: express.Res
 
 export const informWitnessController = async (req: express.Request, res: express.Response) => {
   try {
-    console.log("00000000")
     const { jobId, witness } = req.body;
     
     if (!jobId || !witness) {
@@ -50,7 +48,6 @@ export const informWitnessController = async (req: express.Request, res: express
     
     const job = await getJobById(jobId);
     
-    console.log("1111111")
     if (!job) {
       return res.sendStatus(404);
     }
