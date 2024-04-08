@@ -50,7 +50,7 @@ const informWitnessProvided = async (job: Job) => {
   await job.populate("worker")
   const worker = job.worker as Worker
 
-  fetch(`${worker.httpEndpoint}/witness`, {
+  fetch(`${worker.url}/witness`, {
     method: 'POST',
     body: JSON.stringify({
       id: job._id,

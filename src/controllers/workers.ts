@@ -2,23 +2,24 @@ import express from 'express';
 
 import { createWorker, getWorkerBySigningPublicKey } from '../db/worker';
 
-export const createWorkerController = async (req: express.Request, res: express.Response) => {
+export const registerWorkerController = async (req: express.Request, res: express.Response) => {
   try {
-    const { paymentPublicKey, signingPublicKey, httpEndpoint } = req.body;
+    const { wallet, signingPublicKey, url } = req.body;
 
-    if (!paymentPublicKey || !signingPublicKey || !httpEndpoint) {
-      return res.sendStatus(400);
+    if (!wallet || !signingPublicKey || !url) {
+      return res.json({ error: 'Missing required fields' }).status(400);
     }
 
     const existingWorker = await getWorkerBySigningPublicKey(signingPublicKey);
 
     if (existingWorker) {
-      return res.sendStatus(400)
+      return res.json({ error: 'Worker already exists' }).status(400);
     }
 
-    const worker = await createWorker({ paymentPublicKey, signingPublicKey, httpEndpoint });
+    const worker = await createWorker({ wallet, signingPublicKey, url });
+    console.log({worker})
     
-    return res.status(201).json(worker).end();
+    return res.json(worker).status(200);
   } catch (error) {
     console.error(error);
     res.sendStatus(500);

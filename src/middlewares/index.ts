@@ -1,6 +1,6 @@
 import express from 'express';
 
-import { Client, getClientById, getClientBySessionToken } from '../db/client';
+import { getClientById, getClientBySessionToken } from '../db/client';
 import { decrypt } from '../helpers/index';
 import { getJobById } from '../db/job';
 

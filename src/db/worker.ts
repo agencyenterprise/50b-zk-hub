@@ -7,16 +7,17 @@ enum WorkerStatus {
 }
 
 export interface Worker extends Document {
-  paymentPublicKey: String;
+  wallet: String;
   signingPublicKey: String;
   status: WorkerStatus;
-  httpEndpoint: String;
+  url: String;
 }
 
 const WorkerSchema = new Schema<Worker>({
-  paymentPublicKey: { type: String, required: true },
+  wallet: { type: String, required: true },
   signingPublicKey: { type: String, required: true },
   status: { type: String, enum: Object.values(WorkerStatus), default: WorkerStatus.AVAILABLE },
+  url: { type: String, required: true },
 })
 
 export const WorkerModel = mongoose.model<Worker>('Worker', WorkerSchema)
