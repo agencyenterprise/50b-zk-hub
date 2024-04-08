@@ -17,7 +17,6 @@ export const registerWorkerController = async (req: express.Request, res: expres
     }
 
     const worker = await createWorker({ wallet, signingPublicKey, url });
-    console.log({worker})
     
     return res.json(worker).status(200);
   } catch (error) {
