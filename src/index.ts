@@ -6,6 +6,8 @@ import compression from 'compression';
 import cors from 'cors';
 import mongoose from 'mongoose';
 import router from './router';
+import { WorkerStatus, getAvailableWorkers } from './db/worker';
+import axios from 'axios';
 
 const app = express();
 
@@ -31,3 +33,18 @@ mongoose.connect(MONGO_URL)
 mongoose.connection.on('error', (error: Error) => console.log(error))
 
 app.use('/', router())
+
+setInterval(async () => {
+  const availableWorkers = await getAvailableWorkers()
+
+  await Promise.allSettled(availableWorkers.map(async (worker): Promise<void> => {
+    try {
+      const response = await axios.get(`${worker.url}/healthcheck`, { timeout: 5000 })
+      if (response.status && response.status === 200) {
+        return
+      }
+    } catch (error) {}
+
+    await worker.updateOne({ status: WorkerStatus.OFFLINE })
+  }))
+}, 5000);
