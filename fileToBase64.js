@@ -26,7 +26,7 @@ function createTxtFile(filename, content) {
 
 
 // Usage example
-const filePath = 'circuit.r1cs'; // Replace with the path to your file
+const filePath = 'factor.r1cs'; // Replace with the path to your file
 fileToBase64(filePath)
   .then(base64String => {
     createTxtFile('r1cs.txt', base64String)

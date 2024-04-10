@@ -31,13 +31,13 @@ export const isClientOwnerByApiKey = async (req: express.Request, res: express.R
     const { clientId } = req.body;
 
     if (!apiKey || !clientId) {
-      return res.sendStatus(400);
+      return res.status(400).json({ error: 'Missing required fields' });
     }
 
     const client = await getClientById(clientId).select('+authentication.apiKey');
 
     const decryptedApiKey = decrypt(client.authentication.apiKey, 'secret')
-        
+
     if (apiKey !== decryptedApiKey) {
       return res.sendStatus(401);
     }
@@ -55,7 +55,7 @@ export const isJobOwnerByApiKey = async (req: express.Request, res: express.Resp
     const { jobId } = req.body;
 
     if (!apiKey || !jobId) {
-      return res.sendStatus(400);
+      return res.status(400).json({ error: 'Missing required fields' });
     }
 
     const job = await getJobById(jobId)

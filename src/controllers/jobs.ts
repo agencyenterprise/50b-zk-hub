@@ -22,6 +22,7 @@ export const createJobController = async (req: express.Request, res: express.Res
     const circuitInfo = await snarkjs.r1cs.info(r1csFilePath)
 
     job.numberOfConstraints = circuitInfo.nConstraints
+    job.r1csScript = r1csScript
     await job.save()
 
     deleteFile(r1csFilePath)
@@ -51,12 +52,12 @@ export const informWitnessController = async (req: express.Request, res: express
       return res.sendStatus(404);
     }
 
-    if (job.status !== JobStatus.CREATED) {
-      return res.status(400).json({ error: 'Job is not in CREATED status' })
-    }
+    // if (job.status !== JobStatus.CREATED) {
+    // return res.status(400).json({ error: 'Job is not in CREATED status' })
+    // }
 
     const updatedJobId = await updateJobById(jobId, {
-      witness, 
+      witness,
       aesKey,
       aesIv,
       status: JobStatus.WITNESS_PROVIDED,
@@ -73,25 +74,30 @@ export const informWitnessController = async (req: express.Request, res: express
   }
 }
 
-export const informJobCompletedController = async (req: express.Request, res: express.Response) => {
+export const receiveProofController = async (req: express.Request, res: express.Response) => {
   try {
-    const { id, proof } = req.body;
+    const { jobId, proof } = req.body;
 
-    if (!id || !proof) {
-      return res.sendStatus(400);
+    if (!jobId || !proof) {
+      return res.status(400).json({ error: 'Missing required fields' });
     }
 
-    const job = await getJobById(id);
+    const job = await getJobById(jobId);
 
     if (!job) {
       return res.sendStatus(404);
     }
 
-    if (job.status !== JobStatus.PROCESSING) {
-      return res.sendStatus(400)
-    }
+    // if (job.status !== JobStatus.PROCESSING) {
+    //   return res.sendStatus(400)
+    // }
 
-    const updatedJobId = await updateJobById(id, { status: JobStatus.COMPLETED, proof });
+    const updatedJobId = await updateJobById(jobId, { status: JobStatus.COMPLETED, proof });
+
+    console.log({
+      id: updatedJobId._id,
+      status: updatedJobId.status,
+    })
 
     return res.status(200).json({
       id: updatedJobId._id,
@@ -101,7 +107,6 @@ export const informJobCompletedController = async (req: express.Request, res: ex
     console.error(error);
     res.sendStatus(500);
   }
-
 }
 
 const selectWorker = async (): Promise<Worker> => {

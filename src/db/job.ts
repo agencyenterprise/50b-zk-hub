@@ -38,9 +38,10 @@ JobSchema.post('findOneAndUpdate', function (job: Job) {
   const updatedStatus = job.status;
   if (updatedStatus === JobStatus.WITNESS_PROVIDED) {
     informWitnessProvided(job);
-  } else if (updatedStatus === JobStatus.COMPLETED) {
-    informJobCompleted(job);
-  }
+  } 
+  // else if (updatedStatus === JobStatus.COMPLETED) {
+  //   informJobCompleted(job);
+  // }
 });
 
 export const JobModel = mongoose.model<Job>('Job', JobSchema)
@@ -57,11 +58,11 @@ const informWitnessProvided = async (job: Job) => {
   fetch(`${worker.url}/witness`, {
     method: 'POST',
     body: JSON.stringify({
-      id: job._id,
+      jobId: job._id,
       witness: job.witness,
       aesKey: job.aesKey,
       aesIv: job.aesIv,
-      r1csScript: job.r1csScript,
+      r1cs: job.r1csScript,
     }),
     headers: {
       'Content-Type': 'application/json',
