@@ -37,7 +37,7 @@ export const isClientOwnerByApiKey = async (req: express.Request, res: express.R
     const client = await getClientById(clientId).select('+authentication.apiKey');
 
     const decryptedApiKey = decrypt(client.authentication.apiKey, 'secret')
-    
+        
     if (apiKey !== decryptedApiKey) {
       return res.sendStatus(401);
     }

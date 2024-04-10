@@ -14,7 +14,6 @@ export const createJobController = async (req: express.Request, res: express.Res
       return res.sendStatus(400);
     }
 
-
     const worker = await selectWorker()
     const job = await createJob({ client: clientId, worker });
 
@@ -40,23 +39,28 @@ export const createJobController = async (req: express.Request, res: express.Res
 
 export const informWitnessController = async (req: express.Request, res: express.Response) => {
   try {
-    const { jobId, witness } = req.body;
-    
-    if (!jobId || !witness) {
-      return res.sendStatus(400);
+    const { jobId, witness, aesKey, aesIv } = req.body;
+
+    if (!jobId || !witness || !aesKey || !aesIv) {
+      return res.status(400).json({ error: 'Missing required fields' });
     }
-    
+
     const job = await getJobById(jobId);
-    
+
     if (!job) {
       return res.sendStatus(404);
     }
 
     if (job.status !== JobStatus.CREATED) {
-      return res.sendStatus(400)
+      return res.status(400).json({ error: 'Job is not in CREATED status' })
     }
 
-    const updatedJobId = await updateJobById(jobId, { witness, status: JobStatus.WITNESS_PROVIDED });
+    const updatedJobId = await updateJobById(jobId, {
+      witness, 
+      aesKey,
+      aesIv,
+      status: JobStatus.WITNESS_PROVIDED,
+    });
 
     return res.status(200).json({
       id: updatedJobId._id,

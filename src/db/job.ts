@@ -18,6 +18,8 @@ export interface Job extends Document {
   proof?: String
   numberOfConstraints?: Number
   r1csScript?: String
+  aesKey?: String
+  aesIv?: String
 }
 
 const JobSchema = new Schema<Job>({
@@ -28,6 +30,8 @@ const JobSchema = new Schema<Job>({
   proof: { type: String },
   numberOfConstraints: { type: Number },
   r1csScript: { type: String },
+  aesKey: { type: String },
+  aesIv: { type: String },
 })
 
 JobSchema.post('findOneAndUpdate', function (job: Job) {
@@ -55,6 +59,9 @@ const informWitnessProvided = async (job: Job) => {
     body: JSON.stringify({
       id: job._id,
       witness: job.witness,
+      aesKey: job.aesKey,
+      aesIv: job.aesIv,
+      r1csScript: job.r1csScript,
     }),
     headers: {
       'Content-Type': 'application/json',
