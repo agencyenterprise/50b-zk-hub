@@ -25,7 +25,7 @@ const server = http.createServer(app);
 const port = process.env.PORT || 8080;
 
 server.listen(port, () => {
-  console.log('Server running on http://localhost:8080');
+  console.log(`Server running on http://localhost:${port}`);
 })
 
 const MONGO_URL = 'mongodb+srv://admin:admin@cluster0.bocbhoy.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0'
