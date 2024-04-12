@@ -44,8 +44,14 @@ setInterval(async () => {
       const response = await axios.get(`${worker.url}/healthcheck`, { timeout: 5000 })
       if (response.status && response.status === 200) {
         return
+      } else {
+        console.log(response.status)
+        console.log(`Worker ${worker.url} is offline`)
       }
-    } catch (error) {}
+    } catch (error) {
+      console.log(`Worker ${worker.url} is offline`)
+      console.log(error)
+    }
 
     await worker.updateOne({ status: WorkerStatus.OFFLINE })
   }))
