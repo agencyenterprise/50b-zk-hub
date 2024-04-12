@@ -49,4 +49,4 @@ setInterval(async () => {
 
     await worker.updateOne({ status: WorkerStatus.OFFLINE })
   }))
-}, 5000);
+}, 20000);
