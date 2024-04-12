@@ -28,4 +28,3 @@ export const getWorkerBySigningPublicKey = (signingPublicKey: string) => WorkerM
 export const getAvailableWorkers = () => WorkerModel.find({ status: WorkerStatus.AVAILABLE })
 export const createWorker = (values: Record<string, any>) => new WorkerModel(values).save().then(worker => worker.toObject())
 export const deleteWorkerByPaymentPublicKey = (paymentPublicKey: string) => WorkerModel.findOneAndDelete({ paymentPublicKey: paymentPublicKey })
-export const updateUserByPublicKey = (paymentPublicKey: string, values: Record<string, any>) => WorkerModel.findOneAndUpdate({ paymentPublicKey }, values, { new: true }).then(worker => worker.toObject())

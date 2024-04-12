@@ -7,13 +7,13 @@ export const registerWorkerController = async (req: express.Request, res: expres
     const { wallet, signingPublicKey, url } = req.body;
 
     if (!wallet || !signingPublicKey || !url) {
-      return res.json({ error: 'Missing required fields' }).status(400);
+      return res.status(400).json({ error: 'Missing required fields' });
     }
 
     const existingWorker = await getWorkerBySigningPublicKey(signingPublicKey);
 
     if (existingWorker) {
-      return res.json({ error: 'Worker already exists' }).status(400);
+      return res.status(400).json({ error: 'Worker already exists' });
     }
 
     const worker = await createWorker({ wallet, signingPublicKey, url });
