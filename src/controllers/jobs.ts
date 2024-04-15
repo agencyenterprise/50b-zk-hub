@@ -1,6 +1,6 @@
 import { base64ToFile } from '../helpers/base64';
 import { Job, JobStatus, createJob, getJobById, updateJobById } from '../db/job';
-import { Worker, WorkerModel } from '../db/worker';
+import { Worker, WorkerModel, WorkerStatus, updateWorkerById } from '../db/worker';
 import express from 'express';
 import { deleteFile } from '../helpers/files';
 
@@ -24,6 +24,9 @@ export const createJobController = async (req: express.Request, res: express.Res
     job.numberOfConstraints = circuitInfo.nConstraints
     job.r1csScript = r1csScript
     await job.save()
+
+    worker.status = WorkerStatus.SELECTED
+    await worker.save()
 
     deleteFile(r1csFilePath)
 
@@ -99,6 +102,8 @@ export const receiveProofController = async (req: express.Request, res: express.
       proof
     });
 
+    await updateWorkerById(job.worker._id, { status: WorkerStatus.AVAILABLE })
+
     return res.status(200).json({
       id: updatedJobId._id,
       status: updatedJobId.status,
@@ -132,6 +137,7 @@ const informWitnessProvided = async (job: Job) => {
   }).then(async (res) => {
     if (res.status === 200) {
       await updateJobById(job._id, { status: JobStatus.PROCESSING })
+      await updateWorkerById(worker._id, { status: WorkerStatus.PROCESSING })
     } else {
       await updateJobById(job._id, { status: JobStatus.FAILED })
     }

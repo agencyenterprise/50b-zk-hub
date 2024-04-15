@@ -1,7 +1,8 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose, { Schema, Document } from "mongoose";
 
 export enum WorkerStatus {
   AVAILABLE = 'AVAILABLE',
+  SELECTED = 'SELECTED',
   PROCESSING = 'PROCESSING',
   OFFLINE = 'OFFLINE',
 }
@@ -27,4 +28,5 @@ export const getWorkerByPaymentPublicKey = (paymentPublicKey: string) => WorkerM
 export const getWorkerBySigningPublicKey = (signingPublicKey: string) => WorkerModel.findOne({ signingPublicKey })
 export const getAvailableWorkers = () => WorkerModel.find({ status: WorkerStatus.AVAILABLE })
 export const createWorker = (values: Record<string, any>) => new WorkerModel(values).save().then(worker => worker.toObject())
+export const updateWorkerById = (id: string, values: Record<string, any>): Promise<Worker> => WorkerModel.findOneAndUpdate({ _id: id }, values, { new: true });
 export const deleteWorkerByPaymentPublicKey = (paymentPublicKey: string) => WorkerModel.findOneAndDelete({ paymentPublicKey: paymentPublicKey })
