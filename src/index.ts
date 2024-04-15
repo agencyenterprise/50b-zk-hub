@@ -8,6 +8,9 @@ import mongoose from 'mongoose';
 import router from './router';
 import { WorkerStatus, getAvailableWorkers } from './db/worker';
 import axios from 'axios';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const app = express();
 
@@ -28,7 +31,7 @@ server.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
 })
 
-const MONGO_URL = 'mongodb+srv://admin:admin@cluster0.bocbhoy.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0'
+const MONGO_URL = process.env.MONGO_URL
 
 mongoose.Promise = Promise
 mongoose.connect(MONGO_URL)

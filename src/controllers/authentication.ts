@@ -2,7 +2,8 @@ import express from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import { random, authentication, encrypt } from '../helpers';
 import { createClient, getClientByEmail, getClientBySessionToken } from '../db/client';
-import crypto from 'crypto';
+
+const SECRET = process.env.SECRET
 
 export const login = async (req: express.Request, res: express.Response) => {
   try {
@@ -70,8 +71,6 @@ export const register = async (req: express.Request, res: express.Response) => {
   }
 }
 
-const SECRET_KEY = 'secret'
-
 export const generateApiToken = async (req: express.Request, res: express.Response) => {
   const sessionToken = req.cookies['SESSION_TOKEN'];
 
@@ -86,7 +85,7 @@ export const generateApiToken = async (req: express.Request, res: express.Respon
   }
 
   const apiKey: string = uuidv4()
-  const encryptedApiKey = encrypt(apiKey, SECRET_KEY);
+  const encryptedApiKey = encrypt(apiKey, SECRET);
   
   client.authentication.apiKey = encryptedApiKey
 
