@@ -8,13 +8,16 @@ const snarkjs = require('snarkjs')
 
 export const createJobController = async (req: express.Request, res: express.Response) => {
   try {
+    console.log("000000")
     const { r1csScript, clientId } = req.body;
 
     if (!r1csScript) {
       return res.sendStatus(400);
     }
 
+    console.log("heeyyy")
     const worker = await selectWorker()
+    console.log({worker})
     const job = await createJob({ client: clientId, worker });
 
     const r1csFilePath = `temp/${job._id}.r1cs`

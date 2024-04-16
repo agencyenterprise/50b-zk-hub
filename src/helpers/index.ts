@@ -1,11 +1,10 @@
+import config from '../config/index';
 import crypto from 'crypto';
-
-const SECRET = process.env.SECRET
 
 export const random = () => crypto.randomBytes(128).toString('base64');
 
 export const authentication = (password: string, salt: string) => {
-  return crypto.createHmac('sha256', [salt, password].join('/')).update(SECRET).digest('hex')
+  return crypto.createHmac('sha256', [salt, password].join('/')).update(config.SECRET).digest('hex')
 }
 
 export const encrypt = (text: string, secretKey: string): string => {
@@ -16,6 +15,7 @@ export const encrypt = (text: string, secretKey: string): string => {
 }
 
 export const decrypt = (encryptedText: string, secretKey: string): string => {
+  console.log({secretKey})
   const decipher = crypto.createDecipher('aes-256-cbc', Buffer.from(secretKey));
   let decrypted = decipher.update(encryptedText, 'hex', 'utf8');
   decrypted += decipher.final('utf8');
