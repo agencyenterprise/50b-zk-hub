@@ -8,10 +8,10 @@ export enum WorkerStatus {
 }
 
 export interface Worker extends Document {
-  wallet: String;
-  signingPublicKey: String;
+  wallet: string;
+  signingPublicKey: string;
   status: WorkerStatus;
-  url: String;
+  url: string;
 }
 
 const WorkerSchema = new Schema<Worker>({
