@@ -74,7 +74,7 @@ export const register = async (req: express.Request, res: express.Response) => {
 }
 
 export const generateApiToken = async (req: express.Request, res: express.Response) => {
-  console.log(req.cookies['SESSION_TOKEN'])
+  console.log(req.cookies)
   const sessionToken = req.cookies['SESSION_TOKEN'];
 
   if (!sessionToken) {
