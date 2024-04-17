@@ -29,7 +29,7 @@ export const login = async (req: express.Request, res: express.Response) => {
 
     await client.save()
 
-    res.cookie("SESSION_TOKEN", client.authentication.sessionToken, { domain: 'http://localhost:3000', path: '/' })
+    res.cookie("SESSION_TOKEN", client.authentication.sessionToken, { domain: 'fiftyb-sparkloom-hackathon-poc-507e211c706e.herokuapp.com', path: '/' })
 
     return res.status(200).json(client)
   } catch (error) {
