@@ -29,7 +29,10 @@ export const login = async (req: express.Request, res: express.Response) => {
 
     await client.save()
 
-    res.cookie("SESSION_TOKEN", client.authentication.sessionToken, { domain: 'localhost', path: '/' })
+    res.cookie("SESSION_TOKEN", client.authentication.sessionToken, {
+      domain: 'localhost:3000',
+      secure: false
+    })
 
     return res.status(200).json(client)
   } catch (error) {
@@ -71,6 +74,7 @@ export const register = async (req: express.Request, res: express.Response) => {
 }
 
 export const generateApiToken = async (req: express.Request, res: express.Response) => {
+  console.log(req.cookies['SESSION_TOKEN'])
   const sessionToken = req.cookies['SESSION_TOKEN'];
 
   if (!sessionToken) {
