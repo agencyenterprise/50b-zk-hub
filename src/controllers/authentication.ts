@@ -31,7 +31,8 @@ export const login = async (req: express.Request, res: express.Response) => {
 
     res.cookie("SESSION_TOKEN", client.authentication.sessionToken, {
       domain: 'localhost:3000',
-      secure: false
+      secure: false,
+      httpOnly: true,
     })
 
     return res.status(200).json(client)

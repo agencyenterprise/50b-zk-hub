@@ -7,6 +7,7 @@ import config from '../config/index';
 
 export const isAuthenticated = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
   try {
+    console.log(req.cookies);
     const sessionToken = req.cookies['SESSION_TOKEN'];
 
     if (!sessionToken) {
