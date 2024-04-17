@@ -13,13 +13,13 @@ import config from './config/index';
 const app = express();
 
 app.use(cors({
-  credentials: true
+  credentials: true,
+  origin: 'http://localhost:3000',
 }))
 
 app.use(compression());
 app.use(cookieParser());
 app.use(bodyParser.json({ limit: '50mb' }));
-
 
 const server = http.createServer(app);
 
