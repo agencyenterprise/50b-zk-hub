@@ -145,6 +145,27 @@ export const receiveProofController = async (req: express.Request, res: express.
   }
 }
 
+export const getJobController = async (req: express.Request, res: express.Response) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    const job = await getJobById(id as any);
+
+    if (!job) {
+      return res.sendStatus(404);
+    }
+
+    return res.status(200).json(job);
+  } catch (error) {
+    console.error(error);
+    res.sendStatus(500);
+  }
+}
+
 const selectWorker = async (): Promise<Worker | null | undefined> => {
   return await WorkerModel.findOne({ status: 'AVAILABLE' })
 }

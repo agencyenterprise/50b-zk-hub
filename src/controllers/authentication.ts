@@ -12,7 +12,7 @@ export const login = async (req: express.Request, res: express.Response) => {
       return res.sendStatus(400)
     }
 
-    const client = await getClientByEmail(email).select('+authentication.salt +authentication.password')
+    const client = await getClientByEmail(email).select('+authentication.salt +authentication.password +authentication.apiKey')
 
     if (!client || !client.authentication || !client.authentication.salt || !client.authentication.password) {
       return res.sendStatus(404)
@@ -76,7 +76,6 @@ export const register = async (req: express.Request, res: express.Response) => {
 }
 
 export const generateApiToken = async (req: express.Request, res: express.Response) => {
-  console.log(req.cookies)
   const sessionToken = req.cookies['SESSION_TOKEN'];
 
   if (!sessionToken) {
