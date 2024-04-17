@@ -1,37 +1,59 @@
-import { base64ToFile } from '../helpers/base64';
+import express from 'express';
+import { v4 as uuidv4 } from 'uuid';
+
+import { Client, getClientById } from '../db/client';
 import { Job, JobStatus, createJob, getJobById, updateJobById } from '../db/job';
 import { Worker, WorkerModel, WorkerStatus, updateWorkerById } from '../db/worker';
-import express from 'express';
+
+import { base64ToFile } from '../helpers/base64';
+import { getEscrowBalance, lockFunds, payWorker } from '../helpers/blockchain';
 import { deleteFile } from '../helpers/files';
 
-const snarkjs = require('snarkjs')
+const snarkjs = require('snarkjs');
 
 export const createJobController = async (req: express.Request, res: express.Response) => {
   try {
-    console.log("000000")
     const { r1csScript, clientId } = req.body;
 
     if (!r1csScript) {
       return res.sendStatus(400);
     }
 
-    console.log("heeyyy")
-    const worker = await selectWorker()
-    console.log({worker})
+    const client = await getClientById(clientId);
+    
+    if (!client) {
+      return res.sendStatus(404);
+    }
+
+    const r1csFilePath = `temp/${uuidv4()}.r1cs`;
+    await base64ToFile(r1csScript, r1csFilePath);
+    const circuitInfo = await snarkjs.r1cs.info(r1csFilePath);
+    
+    const amount = circuitInfo.numberOfConstraints as number * Number(process.env.CONSTRAINT_PRICE);   
+    const clientBalance = await getEscrowBalance(client.paymentPublicKey);
+
+    if (clientBalance < amount) {
+      return res.status(400).json({ error: 'Insufficient funds' });
+    }
+
+    const worker = await selectWorker();
+
+    if (!worker) {
+      return res.status(400).json({ error: 'No available workers' });
+    }
+
     const job = await createJob({ client: clientId, worker });
 
-    const r1csFilePath = `temp/${job._id}.r1cs`
-    await base64ToFile(r1csScript, r1csFilePath)
-    const circuitInfo = await snarkjs.r1cs.info(r1csFilePath)
+    job.numberOfConstraints = circuitInfo.nConstraints;
+    job.r1csScript = r1csScript;
+    await job.save();
 
-    job.numberOfConstraints = circuitInfo.nConstraints
-    job.r1csScript = r1csScript
-    await job.save()
+    worker.status = WorkerStatus.SELECTED;
+    await worker.save();
 
-    worker.status = WorkerStatus.SELECTED
-    await worker.save()
+    deleteFile(r1csFilePath);
 
-    deleteFile(r1csFilePath)
+    await lockFunds(client.paymentPublicKey, amount);
 
     return res.status(201).json({
       id: job._id,
@@ -92,13 +114,19 @@ export const receiveProofController = async (req: express.Request, res: express.
 
     const job = await getJobById(jobId);
 
-    if (!job) {
+    if (!job || !job.worker) {
       return res.sendStatus(404);
     }
 
     if (job.status !== JobStatus.PROCESSING) {
       return res.sendStatus(400)
     }
+
+    const client = job.client as Client;
+    const worker = job.worker as Worker;
+    const amount = job.numberOfConstraints as number * Number(process.env.CONSTRAINT_PRICE);
+
+    await payWorker(client.paymentPublicKey, worker.wallet, amount);
 
     const updatedJobId = await updateJobById(jobId, {
       status: JobStatus.COMPLETED,
@@ -117,7 +145,7 @@ export const receiveProofController = async (req: express.Request, res: express.
   }
 }
 
-const selectWorker = async (): Promise<Worker> => {
+const selectWorker = async (): Promise<Worker | null | undefined> => {
   return await WorkerModel.findOne({ status: 'AVAILABLE' })
 }
 

@@ -14,7 +14,7 @@ export const login = async (req: express.Request, res: express.Response) => {
 
     const client = await getClientByEmail(email).select('+authentication.salt +authentication.password')
 
-    if (!client) {
+    if (!client || !client.authentication || !client.authentication.salt || !client.authentication.password) {
       return res.sendStatus(404)
     }
 
@@ -85,7 +85,7 @@ export const generateApiToken = async (req: express.Request, res: express.Respon
 
   const client = await getClientBySessionToken(sessionToken);
 
-  if (!client) {
+  if (!client || !client.authentication) {
     return res.sendStatus(401);
   }
 
@@ -93,7 +93,6 @@ export const generateApiToken = async (req: express.Request, res: express.Respon
   const encryptedApiKey = encrypt(apiKey, config.SECRET);
   
   client.authentication.apiKey = encryptedApiKey
-
   client.save()
 
   res.status(200).json({
