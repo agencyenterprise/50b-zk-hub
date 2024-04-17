@@ -3,8 +3,7 @@ import express from 'express';
 import { getClientById, getClientBySessionToken } from '../db/client';
 import { decrypt } from '../helpers/index';
 import { getJobById } from '../db/job';
-
-const SECRET = process.env.SECRET;
+import config from '../config/index';
 
 export const isAuthenticated = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
   try {
@@ -38,7 +37,7 @@ export const isClientOwnerByApiKey = async (req: express.Request, res: express.R
 
     const client = await getClientById(clientId).select('+authentication.apiKey');
 
-    const decryptedApiKey = decrypt(client.authentication.apiKey, SECRET)
+    const decryptedApiKey = decrypt(client.authentication.apiKey, config.SECRET)
 
     if (apiKey !== decryptedApiKey) {
       return res.sendStatus(401);
@@ -63,7 +62,7 @@ export const isJobOwnerByApiKey = async (req: express.Request, res: express.Resp
     const job = await getJobById(jobId)
     const client = await getClientById(job.client.toString()).select('+authentication.apiKey');
 
-    const decryptedApiKey = decrypt(client.authentication.apiKey, SECRET)
+    const decryptedApiKey = decrypt(client.authentication.apiKey, config.SECRET)
     
     if (apiKey !== decryptedApiKey) {
       return res.sendStatus(401);

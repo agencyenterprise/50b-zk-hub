@@ -2,8 +2,7 @@ import express from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import { random, authentication, encrypt } from '../helpers';
 import { createClient, getClientByEmail, getClientBySessionToken } from '../db/client';
-
-const SECRET = process.env.SECRET
+import config from '../config/index';
 
 export const login = async (req: express.Request, res: express.Response) => {
   try {
@@ -15,7 +14,7 @@ export const login = async (req: express.Request, res: express.Response) => {
 
     const client = await getClientByEmail(email).select('+authentication.salt +authentication.password')
 
-    if (!client) {
+    if (!client || !client.authentication || !client.authentication.salt || !client.authentication.password) {
       return res.sendStatus(404)
     }
 
@@ -80,15 +79,14 @@ export const generateApiToken = async (req: express.Request, res: express.Respon
 
   const client = await getClientBySessionToken(sessionToken);
 
-  if (!client) {
+  if (!client || !client.authentication) {
     return res.sendStatus(401);
   }
 
   const apiKey: string = uuidv4()
-  const encryptedApiKey = encrypt(apiKey, SECRET);
+  const encryptedApiKey = encrypt(apiKey, config.SECRET);
   
   client.authentication.apiKey = encryptedApiKey
-
   client.save()
 
   res.status(200).json({

@@ -19,13 +19,17 @@ export const createJobController = async (req: express.Request, res: express.Res
       return res.sendStatus(400);
     }
 
+    const client = await getClientById(clientId);
+    
+    if (!client) {
+      return res.sendStatus(404);
+    }
+
     const r1csFilePath = `temp/${uuidv4()}.r1cs`;
     await base64ToFile(r1csScript, r1csFilePath);
     const circuitInfo = await snarkjs.r1cs.info(r1csFilePath);
-
-    const client = await getClientById(clientId);
-    const amount = circuitInfo.numberOfConstraints as number * Number(process.env.CONSTRAINT_PRICE);
-
+    
+    const amount = circuitInfo.numberOfConstraints as number * Number(process.env.CONSTRAINT_PRICE);   
     const clientBalance = await getEscrowBalance(client.paymentPublicKey);
 
     if (clientBalance < amount) {
@@ -33,6 +37,11 @@ export const createJobController = async (req: express.Request, res: express.Res
     }
 
     const worker = await selectWorker();
+
+    if (!worker) {
+      return res.status(400).json({ error: 'No available workers' });
+    }
+
     const job = await createJob({ client: clientId, worker });
 
     job.numberOfConstraints = circuitInfo.nConstraints;
@@ -105,7 +114,7 @@ export const receiveProofController = async (req: express.Request, res: express.
 
     const job = await getJobById(jobId);
 
-    if (!job) {
+    if (!job || !job.worker) {
       return res.sendStatus(404);
     }
 
@@ -136,7 +145,7 @@ export const receiveProofController = async (req: express.Request, res: express.
   }
 }
 
-const selectWorker = async (): Promise<Worker> => {
+const selectWorker = async (): Promise<Worker | null | undefined> => {
   return await WorkerModel.findOne({ status: 'AVAILABLE' })
 }
 
