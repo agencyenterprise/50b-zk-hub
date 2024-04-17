@@ -33,6 +33,8 @@ export const login = async (req: express.Request, res: express.Response) => {
       domain: 'localhost:3000',
       secure: false,
       httpOnly: true,
+      sameSite: 'strict',
+      maxAge: 1000 * 60 * 60 * 24 * 7
     })
 
     return res.status(200).json(client)
