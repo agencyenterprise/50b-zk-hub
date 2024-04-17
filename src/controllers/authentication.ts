@@ -29,7 +29,13 @@ export const login = async (req: express.Request, res: express.Response) => {
 
     await client.save()
 
-    res.cookie("SESSION_TOKEN", client.authentication.sessionToken, { domain: 'fiftyb-sparkloom-hackathon-poc-507e211c706e.herokuapp.com', path: '/' })
+    res.cookie("SESSION_TOKEN", client.authentication.sessionToken, { 
+      domain: 'fiftyb-sparkloom-hackathon-poc-507e211c706e.herokuapp.com', 
+      path: '/',
+      secure: true, // Set to true if served over HTTPS
+      // httpOnly: true, // Prevents client-side JavaScript access
+      sameSite: 'none',
+    })
 
     return res.status(200).json(client)
   } catch (error) {
