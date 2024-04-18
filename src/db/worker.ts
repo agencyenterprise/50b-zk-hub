@@ -24,6 +24,7 @@ const WorkerSchema = new Schema<Worker>({
 export const WorkerModel = mongoose.model<Worker>('Worker', WorkerSchema)
 
 export const getWorkers = WorkerModel.find()
+export const getWorkerById = (id: string) => WorkerModel.findById(id)
 export const getWorkerByPaymentPublicKey = (paymentPublicKey: string) => WorkerModel.findOne({ paymentPublicKey })
 export const getWorkerBySigningPublicKey = (signingPublicKey: string) => WorkerModel.findOne({ signingPublicKey })
 export const getAvailableWorkers = () => WorkerModel.find({ status: WorkerStatus.AVAILABLE })

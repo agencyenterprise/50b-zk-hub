@@ -15,7 +15,6 @@ export const encrypt = (text: string, secretKey: string): string => {
 }
 
 export const decrypt = (encryptedText: string, secretKey: string): string => {
-  console.log({secretKey})
   const decipher = crypto.createDecipher('aes-256-cbc', Buffer.from(secretKey));
   let decrypted = decipher.update(encryptedText, 'hex', 'utf8');
   decrypted += decipher.final('utf8');

@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { Client, getClientById } from '../db/client';
 import { Job, JobStatus, createJob, getJobById, updateJobById } from '../db/job';
-import { Worker, WorkerModel, WorkerStatus, updateWorkerById } from '../db/worker';
+import { Worker, WorkerModel, WorkerStatus, getWorkerById, updateWorkerById } from '../db/worker';
 
 import { base64ToFile } from '../helpers/base64';
 import { getEscrowBalance, lockFunds, payWorker } from '../helpers/blockchain';
@@ -29,7 +29,7 @@ export const createJobController = async (req: express.Request, res: express.Res
     await base64ToFile(r1csScript, r1csFilePath);
     const circuitInfo = await snarkjs.r1cs.info(r1csFilePath);
     
-    const amount = circuitInfo.numberOfConstraints as number * Number(process.env.CONSTRAINT_PRICE);   
+    const amount = circuitInfo.nConstraints as number * Number(process.env.CONSTRAINT_PRICE);   
     const clientBalance = await getEscrowBalance(client.paymentPublicKey);
 
     if (clientBalance < amount) {
@@ -122,8 +122,8 @@ export const receiveProofController = async (req: express.Request, res: express.
       return res.sendStatus(400)
     }
 
-    const client = job.client as Client;
-    const worker = job.worker as Worker;
+    const client = await getClientById(job.client._id);
+    const worker = await getWorkerById(job.worker._id);
     const amount = job.numberOfConstraints as number * Number(process.env.CONSTRAINT_PRICE);
 
     await payWorker(client.paymentPublicKey, worker.wallet, amount);

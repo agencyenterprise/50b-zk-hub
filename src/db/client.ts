@@ -1,6 +1,6 @@
-import mongoose from "mongoose";
+import mongoose, { Schema, Document } from "mongoose";
 
-export interface Client {
+export interface Client extends Document {
   email: string;
   authentication: {
     password: string;
@@ -12,7 +12,7 @@ export interface Client {
   httpEndpoint?: string
 }
 
-const ClientSchema = new mongoose.Schema({
+const ClientSchema = new Schema({
   email: { type: String, required: true },
   authentication: {
     password: { type: String, required: true, select: false },

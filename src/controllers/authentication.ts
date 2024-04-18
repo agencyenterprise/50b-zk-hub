@@ -36,7 +36,9 @@ export const login = async (req: express.Request, res: express.Response) => {
       maxAge: 1000 * 60 * 60 * 24 * 7
     });
 
-    client.authentication.apiKey = decrypt(client.authentication.apiKey, config.SECRET)
+    client.authentication.apiKey = client.authentication.apiKey ?
+                                    decrypt(client.authentication.apiKey, config.SECRET) :
+                                    undefined;
 
     return res.status(200).json(client)
   } catch (error) {
