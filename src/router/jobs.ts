@@ -7,5 +7,5 @@ export default (router: express.Router) => {
   router.post('/jobs', isClientOwnerByApiKey, createJobController);
   router.post('/jobs/start', isJobOwnerByApiKey, informWitnessController);
   router.post('/jobs/proof', receiveProofController);
-  router.get('/jobs/:id', isJobOwnerByApiKey, getJobController);
+  router.get('/jobs/:id', getJobController);
 }
