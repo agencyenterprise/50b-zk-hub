@@ -1,7 +1,7 @@
 import express from 'express';
 import { v4 as uuidv4 } from 'uuid';
 
-import { Client, getClientById } from '../db/client';
+import { getClientById } from '../db/client';
 import { Job, JobStatus, createJob, getJobById, updateJobById } from '../db/job';
 import { Worker, WorkerModel, WorkerStatus, getWorkerById, updateWorkerById } from '../db/worker';
 
