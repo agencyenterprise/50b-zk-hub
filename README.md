@@ -80,3 +80,17 @@ example payload:
 }
 ```
 
+## Running the project
+
+Requirements:
+
+* Node 16 or higher
+* NPM
+* Mongo db 
+
+Running the project:
+
+* Set up the env vars
+* Run `npm install` 
+* Run `npm start`
+
