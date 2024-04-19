@@ -28,6 +28,10 @@ export const createJobController = async (req: express.Request, res: express.Res
     const r1csFilePath = `temp/${uuidv4()}.r1cs`;
     await base64ToFile(r1csScript, r1csFilePath);
     const circuitInfo = await snarkjs.r1cs.info(r1csFilePath);
+
+    if (circuitInfo.nConstraints > 10000) {
+      return res.status(400).json({ error: 'Too many constraints' });
+    }
     
     const amount = circuitInfo.nConstraints as number * Number(process.env.CONSTRAINT_PRICE);   
     const clientBalance = await getEscrowBalance(client.paymentPublicKey);
