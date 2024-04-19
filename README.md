@@ -60,7 +60,7 @@ example payload:
 
 POST `http://localhost:8080/jobs`
 
-On this endpoint you will need to create an AES Key and AES IV to public encrypt the witness file with worker public key.
+On this endpoint you will need to create an AES Key and AES IV to public encrypt the witness file with worker public key. You can refer to our ongoing SDK project on how to do [this](https://github.com/agencyenterprise/50b-zk-sdk/blob/30a2a9b56036b9f05213ddde1e322d8026642e0a/50b-zk-sdk.js#L73).
 
 headers:
 
